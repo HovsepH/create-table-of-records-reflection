@@ -52,7 +52,7 @@ public static class TableOfRecordsCreator
 
         foreach (var item in collection)
         {
-            WriteRow<T>(writer, properties, columnWidths, item, isHeader: false);
+            WriteRow(writer, properties, columnWidths, item, isHeader: false);
             WriteSeparator(writer, columnWidths);
         }
     }
@@ -62,7 +62,7 @@ public static class TableOfRecordsCreator
         writer.Write("|");
         for (int i = 0; i < properties.Length; i++)
         {
-            var value = isHeader ? properties[i].Name : properties[i].GetValue(item)?.ToString() ?? "";
+            var value = isHeader ? properties[i].Name : properties[i].GetValue(item)?.ToString() ?? string.Empty;
             var width = columnWidths[i];
             writer.Write(" " + FormatCell(value, width, properties[i].PropertyType) + " |");
         }
@@ -78,6 +78,7 @@ public static class TableOfRecordsCreator
             writer.Write(new string('-', width + 2)); // +2 for spaces before and after cell content
             writer.Write("+");
         }
+
         writer.WriteLine();
     }
 
