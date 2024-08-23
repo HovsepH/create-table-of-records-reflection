@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using NUnit.Framework;
 using TableOfRecords.Tests.UserProfiles;
 
@@ -75,6 +75,8 @@ public class TableOfRecordsCreatorTests
         using var stringWriter = new StringWriter();
         Console.SetOut(stringWriter);
         TableOfRecordsCreator.WriteTable(TestCasesDataSource.ProfileBasicCollection, stringWriter);
+        var result = stringWriter.ToString();
+        Console.WriteLine(result);
         Assert.That(TestCasesDataSource.ProfileBasicTable, Is.EqualTo(stringWriter.ToString()));
     }
 
