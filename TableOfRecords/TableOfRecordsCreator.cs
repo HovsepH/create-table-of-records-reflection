@@ -43,11 +43,12 @@ public static class TableOfRecordsCreator
         {
             throw new ArgumentException("Type must have at least one public property of a built-in type.");
         }
-
+#pragma warning disable CS8602
         var columnWidths = properties
             .Select(p => Math.Max(
                 p.Name.Length,
                 collection.Max(e => p.GetValue(e)?.ToString().Length ?? 0))).ToArray();
+#pragma warning restore CS8602
         WriteSeparator(writer, columnWidths);
         WriteRow<T>(writer, properties, columnWidths, isHeader: true);
         WriteSeparator(writer, columnWidths);
