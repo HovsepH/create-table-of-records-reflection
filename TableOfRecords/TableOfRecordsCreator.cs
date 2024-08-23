@@ -37,7 +37,7 @@ public static class TableOfRecordsCreator
 
         Type type = typeof(T);
         var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Where(p => p.PropertyType.IsPrimitive || p.PropertyType == typeof(string))
+            .Where(p => p.PropertyType.IsPrimitive || p.PropertyType == typeof(string) || p.PropertyType == typeof(decimal))
             .ToArray();
         if (properties.Length == 0)
         {
@@ -45,8 +45,10 @@ public static class TableOfRecordsCreator
         }
 
         var columnWidths = properties
-                .Select(p => collection.Max(e => p.GetValue(e)?.ToString().Length ?? 0))
-                .ToArray();
+            .Select(p => Math.Max(
+                p.Name.Length,
+                collection.Max(e => p.GetValue(e)?.ToString().Length ?? 0))).ToArray();
+        WriteSeparator(writer, columnWidths);
         WriteRow<T>(writer, properties, columnWidths, isHeader: true);
         WriteSeparator(writer, columnWidths);
 
@@ -64,10 +66,15 @@ public static class TableOfRecordsCreator
         {
             var value = isHeader ? properties[i].Name : properties[i].GetValue(item)?.ToString() ?? string.Empty;
             var width = columnWidths[i];
+            if (width < 3)
+            {
+                width = 3;
+            }
+
             writer.Write(" " + FormatCell(value, width, properties[i].PropertyType) + " |");
         }
 
-        writer.WriteLine();
+        writer.Write($"{Environment.NewLine}");
     }
 
     private static void WriteSeparator(TextWriter writer, int[] columnWidths)
@@ -75,22 +82,43 @@ public static class TableOfRecordsCreator
         writer.Write("+");
         foreach (var width in columnWidths)
         {
-            writer.Write(new string('-', width + 2)); // +2 for spaces before and after cell content
+            if (width < 5)
+            {
+                int newWidth = 5;
+                writer.Write(new string('-', newWidth));
+            }
+            else
+            {
+                writer.Write(new string('-', width + 2));
+            }
+
             writer.Write("+");
         }
 
-        writer.WriteLine();
+        writer.Write($"{Environment.NewLine}");
     }
 
     private static string FormatCell(string value, int width, Type propertyType)
     {
-        if (propertyType == typeof(int) || propertyType == typeof(float) || propertyType == typeof(double) || propertyType == typeof(decimal))
+        if (propertyType == typeof(int) || propertyType == typeof(float) || propertyType == typeof(double))
         {
-            return value.PadLeft(width); // Right-align numbers
+            return value.PadLeft(width);
+        }
+        else if (propertyType == typeof(decimal))
+        {
+            return value.PadRight(width);
+        }
+        else if (propertyType == typeof(char))
+        {
+            return value.PadRight(width);
+        }
+        else if (propertyType.IsPrimitive)
+        {
+            return value.PadLeft(width);
         }
         else
         {
-            return value.PadRight(width); // Left-align strings
+            return value.PadRight(width);
         }
     }
 }

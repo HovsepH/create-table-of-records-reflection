@@ -75,8 +75,6 @@ public class TableOfRecordsCreatorTests
         using var stringWriter = new StringWriter();
         Console.SetOut(stringWriter);
         TableOfRecordsCreator.WriteTable(TestCasesDataSource.ProfileBasicCollection, stringWriter);
-        var result = stringWriter.ToString();
-        Console.WriteLine(result);
         Assert.That(TestCasesDataSource.ProfileBasicTable, Is.EqualTo(stringWriter.ToString()));
     }
 
